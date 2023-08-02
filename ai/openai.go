@@ -3,10 +3,11 @@ package ai
 import (
 	"context"
 	"doocli/utils"
-	"github.com/sashabaranov/go-openai"
-	"github.com/tidwall/gjson"
 	"net/http"
 	"net/url"
+
+	"github.com/sashabaranov/go-openai"
+	"github.com/tidwall/gjson"
 )
 
 func OpenaiSend(w http.ResponseWriter, req *http.Request) {

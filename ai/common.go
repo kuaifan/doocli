@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+
 	"github.com/alexandrevicenzi/go-sse"
+	ai_customv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	"github.com/nahid/gohttp"
 	"github.com/sashabaranov/go-openai"
 	"github.com/tidwall/gjson"
-	"io"
-	"net/http"
 )
 
 func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
@@ -226,6 +228,69 @@ func (client *clientModel) openaiStream(stream *openai.ChatCompletionStream) {
 			number++
 		}
 	}
+}
+
+func (client *clientModel) wenxinStream(stream ai_customv1.WenxinworkshopService_ChatCompletionsStreamClient) {
+	client.append = ""
+	client.message = ""
+	number := 0
+	for {
+		response, err := stream.Recv()
+		if errors.Is(err, io.EOF) {
+			return
+		}
+		if err != nil {
+			return
+		}
+		client.append = response.Result
+		client.message = fmt.Sprintf("%s%s", client.message, client.append)
+		//
+		if number == 0 || len(client.message) < 100 {
+			client.sendMessage("replace")
+		} else {
+			client.sendMessage("append")
+		}
+		if number > 20 {
+			number = 0
+		} else {
+			number++
+		}
+	}
+}
+
+func (send *sendModel) wenxinContext() *wenxinModel {
+	user := "wenxin_" + send.dialogId + "_" + send.msgUid
+	var value *wenxinModel
+	for _, oc := range wenxinContext {
+		if oc.user == user {
+			value = oc
+			break
+		}
+	}
+	if value == nil {
+		value = &wenxinModel{
+			user:     user,
+			messages: make([]*ai_customv1.Message, 0),
+		}
+		wenxinContext = append(wenxinContext, value)
+	} else if len(value.messages) > 10 {
+		value.messages = value.messages[len(value.messages)-10:]
+	}
+	value.messages = append(value.messages, &ai_customv1.Message{
+		Role:    "user",
+		Content: send.text,
+	})
+	length := 0
+	index := 0
+	for i := len(value.messages) - 1; i >= 0; i-- {
+		length += len(value.messages[i].Content)
+		if length > 4000 {
+			value.messages = value.messages[len(value.messages)-index:]
+			break
+		}
+		index++
+	}
+	return value
 }
 
 func (client *clientModel) sendMessage(event string) {

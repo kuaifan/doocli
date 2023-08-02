@@ -2,6 +2,7 @@ package ai
 
 import (
 	"github.com/alexandrevicenzi/go-sse"
+	ai_customv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -30,6 +31,11 @@ type openaiModel struct {
 	messages []openai.ChatCompletionMessage
 }
 
+type wenxinModel struct {
+	user     string
+	messages []*ai_customv1.Message
+}
+
 var (
 	HttpPort  string
 	ServerUrl string
@@ -40,7 +46,12 @@ var (
 	OpenaiKey    string
 	OpenaiAgency string
 
+	WenxinKey    string
+	WenxinSecret string
+	WenxinModel  string
+
 	sources       *sse.Server
 	clients       []*clientModel
 	openaiContext []*openaiModel
+	wenxinContext []*wenxinModel
 )

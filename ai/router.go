@@ -2,8 +2,9 @@ package ai
 
 import (
 	"fmt"
-	"github.com/alexandrevicenzi/go-sse"
 	"net/http"
+
+	"github.com/alexandrevicenzi/go-sse"
 )
 
 func Start() {
@@ -19,6 +20,7 @@ func Start() {
 	http.Handle("/stream/", sources)
 	http.HandleFunc("/claude/send", ClaudeSend)
 	http.HandleFunc("/openai/send", OpenaiSend)
+	http.HandleFunc("/wenxin/send", WenxinSend)
 	//
 	fmt.Println("AI service started, listening on port: " + HttpPort)
 	_ = http.ListenAndServe(":"+HttpPort, nil)
