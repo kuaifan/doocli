@@ -293,6 +293,16 @@ func (send *sendModel) wenxinContext() *wenxinModel {
 	return value
 }
 
+func (send *sendModel) wenxinContextClear() {
+	user := "wenxin_" + send.dialogId + "_" + send.msgUid
+	for i, oc := range wenxinContext {
+		if oc.user == user {
+			wenxinContext = append(wenxinContext[:i], wenxinContext[i+1:]...)
+			break
+		}
+	}
+}
+
 func (client *clientModel) sendMessage(event string) {
 	if event == "append" {
 		sources.SendMessage("/stream/"+client.id, sse.NewMessage(client.id, client.append, event))
