@@ -12,7 +12,7 @@ const (
 type QianWenClientConfig struct {
 	authToken 			 string
 	BaseURL              string
-	ContentType              string
+	ContentType          string
 	XDashScopeSSE        string   // 是否开启SSE
 	Data 				 map[string]interface{}
 	HTTPClient           *http.Client
