@@ -2,6 +2,8 @@ package ai
 
 import (
 	"doocli/ai/claude/types"
+	"doocli/ai/qianwen"
+	qianwenconfig "doocli/ai/qianwen/config"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,6 +15,7 @@ import (
 	"github.com/nahid/gohttp"
 	"github.com/sashabaranov/go-openai"
 	"github.com/tidwall/gjson"
+
 )
 
 func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
@@ -258,6 +261,7 @@ func (client *clientModel) wenxinStream(stream ai_customv1.WenxinworkshopService
 	}
 }
 
+
 func (send *sendModel) wenxinContext() *wenxinModel {
 	user := "wenxin_" + send.dialogId + "_" + send.msgUid
 	var value *wenxinModel
@@ -299,6 +303,77 @@ func (send *sendModel) wenxinContextClear() {
 		if oc.user == user {
 			wenxinContext = append(wenxinContext[:i], wenxinContext[i+1:]...)
 			break
+		}
+	}
+}
+func (send *sendModel) qianwenContext() *qianwenModel {
+	user := "qianwen_" + send.dialogId + "_" + send.msgUid
+	var value *qianwenModel
+	for _, oc := range qianwenContext {
+		if oc.user == user {
+			value = oc
+			break
+		}
+	}
+	if value == nil {
+		value = &qianwenModel{
+			user:     user,
+			messages: make([]*qianwenconfig.HistoryResquest, 0),
+		}
+		qianwenContext = append(qianwenContext, value)
+	} else if len(value.messages) > 10 {
+		value.messages = value.messages[len(value.messages)-10:]
+	}
+	value.messages = append(value.messages, &qianwenconfig.HistoryResquest{
+		User:    "user",
+		Bot: send.text,
+	})
+	length := 0
+	index := 0
+	for i := len(value.messages) - 1; i >= 0; i-- {
+		length += len(value.messages[i].Bot)
+		if length > 4000 {
+			value.messages = value.messages[len(value.messages)-index:]
+			break
+		}
+		index++
+	}
+	return value
+}
+func (send *sendModel) qianwenContextClear() {
+	user := "qianwen_" + send.dialogId + "_" + send.msgUid
+	for i, oc := range qianwenContext {
+		if oc.user == user {
+			wenxinContext = append(wenxinContext[:i], wenxinContext[i+1:]...)
+			break
+		}
+	}
+}
+func (client *clientModel) qianwenStream(cli *qianwen.Client) {
+	client.append = ""
+	client.message = ""
+	number := 0
+	for {
+		message, ok := <-cli.Sender
+		if !ok {
+			return
+		}
+		client.append = message.Output.Text[len(client.message):]
+		client.message = message.Output.Text
+		//
+		if number == 0 || len(client.message) < 100 {
+			client.sendMessage("replace")
+		} else {
+			client.sendMessage("append")
+		}
+		if number > 20 {
+			number = 0
+		} else {
+			number++
+		}
+
+		if message.Recv() != nil {
+			return
 		}
 	}
 }

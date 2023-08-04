@@ -1,6 +1,7 @@
 package ai
 
 import (
+	"doocli/ai/qianwen/config"
 	"github.com/alexandrevicenzi/go-sse"
 	ai_customv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	"github.com/sashabaranov/go-openai"
@@ -35,6 +36,10 @@ type wenxinModel struct {
 	user     string
 	messages []*ai_customv1.Message
 }
+type qianwenModel struct {
+	user     string
+	messages []*config.HistoryResquest
+}
 
 var (
 	HttpPort  string
@@ -50,8 +55,12 @@ var (
 	WenxinSecret string
 	WenxinModel  string
 
+	QianwenKey string
+	QianwenModel string
+
 	sources       *sse.Server
 	clients       []*clientModel
 	openaiContext []*openaiModel
 	wenxinContext []*wenxinModel
+	qianwenContext []*qianwenModel
 )
