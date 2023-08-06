@@ -6,6 +6,7 @@ require (
 	github.com/alexandrevicenzi/go-sse v1.6.0
 	github.com/bincooo/requests v0.0.0-20230720064210-7eae5d6c9d1e
 	github.com/google/uuid v1.3.0
+	github.com/hitosea/go-wenxin v0.0.4
 	github.com/nahid/gohttp v0.0.1
 	github.com/sashabaranov/go-openai v1.14.1
 	github.com/spf13/cobra v1.7.0
@@ -28,7 +29,6 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hitosea/go-wenxin v0.0.2 // indirect
 	github.com/imroc/req/v3 v3.35.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
@@ -43,6 +43,7 @@ require (
 	github.com/quic-go/quic-go v0.35.0 // indirect
 	github.com/refraction-networking/utls v1.3.2 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
+	github.com/smartystreets/goconvey v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
