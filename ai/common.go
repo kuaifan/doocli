@@ -369,10 +369,6 @@ func (client *clientModel) qianwenStream(cli *qianwen.Client) {
 		} else {
 			number++
 		}
-
-		if resp.Recv() != nil {
-			return
-		}
 	}
 }
 

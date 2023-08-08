@@ -28,6 +28,7 @@ func (cli *Client) ChatStream() error {
 		return err
 	}
 	if  statusCode != http.StatusOK{
+		defer resp.Body.Close()
 		var baseResult  qianwenconfig.BaseResponse
 		var errResp qianwenconfig.ErrorResponse
 		baseResult.Status = http.StatusOK
@@ -46,9 +47,9 @@ func (cli *Client) ChatStream() error {
 		return nil
 	}
 
-	var status int64
 	go func() {
 		defer resp.Body.Close()
+		var status int64
 		scanner := bufio.NewScanner(resp.Body)
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -86,6 +87,9 @@ func (cli *Client) ChatStream() error {
 				baseResult.FinishReason = result.Output.FinishReason
 				baseResult.Message = result.Output.Text
 				cli.Sender <- baseResult
+				if baseResult.Recv() != nil {
+					close(cli.Sender)
+				}
 			}
 		}
 	}()
