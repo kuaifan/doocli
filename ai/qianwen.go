@@ -46,19 +46,18 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 		send.callRequest("sendtext", sendtext, tokens)
 		return
 	}
-	if utils.InArray(send.text, []string{":clear", ":reset", ":restart", ":new", ":清空上下文", ":重置上下文", ":重启", ":重启对话"}) {
+	if utils.InArray(send.text, clears) {
 		send.wenxinContextClear()
 		sendtext["text"] = "Operation Successful"
 		send.callRequest("sendtext", sendtext, tokens)
 		return
 	}
 
-
 	go func() {
 		oc := send.qianwenContext()
-		qianwenClient,err :=qianwen.New(context.Background(),tmpKey,map[string]interface{}{
-			"model":tmpModel,
-			"input":config.InputResquest{
+		qianwenClient, err := qianwen.New(context.Background(), tmpKey, map[string]interface{}{
+			"model": tmpModel,
+			"input": config.InputResquest{
 				Message: send.text,
 				History: oc.messages,
 			},
@@ -80,8 +79,8 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 		client.qianwenStream(qianwenClient)
 		sendtext["text"] = client.message
 		oc.messages = append(oc.messages, &config.HistoryResquest{
-			User:    "assistant",
-			Bot: sendtext["text"],
+			User: "assistant",
+			Bot:  sendtext["text"],
 		})
 		client.sendMessage("done")
 		client.remove()

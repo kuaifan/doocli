@@ -64,4 +64,6 @@ var (
 	openaiContext  []*openaiModel
 	wenxinContext  []*wenxinModel
 	qianwenContext []*qianwenModel
+
+	clears = []string{":clear", ":reset", ":restart", ":new", ":清空上下文", ":重置上下文", ":重启", ":重启对话"}
 )

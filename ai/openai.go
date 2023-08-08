@@ -44,7 +44,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if utils.InArray(send.text, []string{":clear", ":reset", ":restart", ":new", ":清空上下文", ":重置上下文", ":重启", ":重启对话"}) {
+	if utils.InArray(send.text, clears) {
 		send.openaiContextClear()
 		send.callRequest("sendtext", map[string]string{
 			"update_id":   send.id,

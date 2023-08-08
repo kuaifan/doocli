@@ -46,7 +46,7 @@ func ClaudeSend(w http.ResponseWriter, req *http.Request) {
 
 	organizationKey := "organization_" + send.dialogId + "_" + send.msgUid
 	conversationKey := "conversation_" + send.dialogId + "_" + send.msgUid
-	if utils.InArray(send.text, []string{":clear", ":reset", ":restart", ":new", ":清空上下文", ":重置上下文", ":重启", ":重启对话"}) {
+	if utils.InArray(send.text, clears) {
 		_ = db.DelConfig(organizationKey)
 		_ = db.DelConfig(conversationKey)
 		send.callRequest("sendtext", map[string]string{
