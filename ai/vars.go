@@ -2,8 +2,9 @@ package ai
 
 import (
 	"doocli/ai/qianwen/config"
+
 	"github.com/alexandrevicenzi/go-sse"
-	ai_customv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
+	aicustomv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	"github.com/sashabaranov/go-openai"
 )
 
@@ -34,7 +35,7 @@ type openaiModel struct {
 
 type wenxinModel struct {
 	user     string
-	messages []*ai_customv1.Message
+	messages []*aicustomv1.Message
 }
 type qianwenModel struct {
 	user     string
@@ -55,12 +56,12 @@ var (
 	WenxinSecret string
 	WenxinModel  string
 
-	QianwenKey string
+	QianwenKey   string
 	QianwenModel string
 
-	sources       *sse.Server
-	clients       []*clientModel
-	openaiContext []*openaiModel
-	wenxinContext []*wenxinModel
+	sources        *sse.Server
+	clients        []*clientModel
+	openaiContext  []*openaiModel
+	wenxinContext  []*wenxinModel
 	qianwenContext []*qianwenModel
 )

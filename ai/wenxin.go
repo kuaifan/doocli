@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/hitosea/go-wenxin/baidubce"
-	ai_customv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
+	aicustomv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	baidubcev1 "github.com/hitosea/go-wenxin/gen/go/baidubce/v1"
 	"github.com/tidwall/gjson"
 )
@@ -48,10 +48,8 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if tmpKey == "" {
-		writeJson(w, map[string]string{
-			"code":    "400",
-			"message": "OpenaiKey is empty",
-		})
+		sendtext["text"] = "OpenaiKey is empty"
+		writeJson(w, map[string]string{"code": "400", "message": sendtext["text"]})
 		send.callRequest("sendtext", sendtext, tokens)
 		return
 	}
@@ -77,7 +75,7 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 		}
 
 		oc := send.wenxinContext()
-		stream, err := wenxinClient.ChatStream(context.Background(), &ai_customv1.ChatCompletionsRequest{
+		stream, err := wenxinClient.ChatStream(context.Background(), &aicustomv1.ChatCompletionsRequest{
 			User:     "wenxin_" + send.dialogId + "_" + send.msgUid,
 			Messages: oc.messages,
 		}, tmpModel)
@@ -92,7 +90,7 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 		client := getClient(send.id, true)
 		client.wenxinStream(stream)
 		sendtext["text"] = client.message
-		oc.messages = append(oc.messages, &ai_customv1.Message{
+		oc.messages = append(oc.messages, &aicustomv1.Message{
 			Role:    "assistant",
 			Content: sendtext["text"],
 		})

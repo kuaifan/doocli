@@ -6,7 +6,7 @@ require (
 	github.com/alexandrevicenzi/go-sse v1.6.0
 	github.com/bincooo/requests v0.0.0-20230720064210-7eae5d6c9d1e
 	github.com/google/uuid v1.3.0
-	github.com/hitosea/go-wenxin v0.0.4
+	github.com/hitosea/go-wenxin v0.0.6
 	github.com/nahid/gohttp v0.0.1
 	github.com/sashabaranov/go-openai v1.14.1
 	github.com/spf13/cobra v1.7.0

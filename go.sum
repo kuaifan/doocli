@@ -40,8 +40,8 @@ github.com/hashicorp/errwrap v1.1.0 h1:OxrOeh75EUXMY8TBjag2fzXGZ40LB6IKw45YeGUDY
 github.com/hashicorp/errwrap v1.1.0/go.mod h1:YH+1FKiLXxHSkmPseP+kNlulaMuP3n2brvKWEqk/Jc4=
 github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+lD48awMYo=
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
-github.com/hitosea/go-wenxin v0.0.4 h1:gKP7UV/A8dk1sJJppyRNcLPI4SzwibmvxJjMhvRdQfo=
-github.com/hitosea/go-wenxin v0.0.4/go.mod h1:JIPewWmzsoVrfU08RzjS+BKIKuu377zyrt4Q2i6xD/A=
+github.com/hitosea/go-wenxin v0.0.6 h1:4sjsf20AMCz2MzdBqY5BJ2jckS1iqC+cwCQilnUaGEc=
+github.com/hitosea/go-wenxin v0.0.6/go.mod h1:HaPUJCAjlVMTZUguEqub1vHLHhnx7e3mwQ8qDUNsxl4=
 github.com/imroc/req/v3 v3.35.1 h1:xrsuKq4FHWqxU2DM8lWbTwmxiObGfR7B/zgEBMmy8Wc=
 github.com/imroc/req/v3 v3.35.1/go.mod h1:c8dXW9N3SJn/DuKVjHHmryV2WO7At9bFtnu1rloiFoo=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=

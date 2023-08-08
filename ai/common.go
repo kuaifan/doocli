@@ -11,11 +11,10 @@ import (
 	"net/http"
 
 	"github.com/alexandrevicenzi/go-sse"
-	ai_customv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
+	aicustomv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	"github.com/nahid/gohttp"
 	"github.com/sashabaranov/go-openai"
 	"github.com/tidwall/gjson"
-
 )
 
 func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
@@ -233,7 +232,7 @@ func (client *clientModel) openaiStream(stream *openai.ChatCompletionStream) {
 	}
 }
 
-func (client *clientModel) wenxinStream(stream ai_customv1.WenxinworkshopService_ChatCompletionsStreamClient) {
+func (client *clientModel) wenxinStream(stream aicustomv1.WenxinworkshopService_ChatCompletionsStreamClient) {
 	client.append = ""
 	client.message = ""
 	number := 0
@@ -261,7 +260,6 @@ func (client *clientModel) wenxinStream(stream ai_customv1.WenxinworkshopService
 	}
 }
 
-
 func (send *sendModel) wenxinContext() *wenxinModel {
 	user := "wenxin_" + send.dialogId + "_" + send.msgUid
 	var value *wenxinModel
@@ -274,13 +272,13 @@ func (send *sendModel) wenxinContext() *wenxinModel {
 	if value == nil {
 		value = &wenxinModel{
 			user:     user,
-			messages: make([]*ai_customv1.Message, 0),
+			messages: make([]*aicustomv1.Message, 0),
 		}
 		wenxinContext = append(wenxinContext, value)
 	} else if len(value.messages) > 10 {
 		value.messages = value.messages[len(value.messages)-10:]
 	}
-	value.messages = append(value.messages, &ai_customv1.Message{
+	value.messages = append(value.messages, &aicustomv1.Message{
 		Role:    "user",
 		Content: send.text,
 	})
@@ -325,8 +323,8 @@ func (send *sendModel) qianwenContext() *qianwenModel {
 		value.messages = value.messages[len(value.messages)-10:]
 	}
 	value.messages = append(value.messages, &qianwenconfig.HistoryResquest{
-		User:    "user",
-		Bot: send.text,
+		User: "user",
+		Bot:  send.text,
 	})
 	length := 0
 	index := 0
