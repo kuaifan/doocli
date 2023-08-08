@@ -6,13 +6,15 @@ import (
 	"context"
 	qianwenconfig "doocli/ai/qianwen/config"
 	"encoding/json"
+	"io"
 	"net/http"
 	"regexp"
+	"strconv"
 )
 type Client struct {
 	client      *http.Client
 	req 		*http.Request
-	Sender   	chan qianwenconfig.ChatResponse
+	Sender   	chan qianwenconfig.BaseResponse
 }
 
 func (cli *Client) ChatStream() error {
@@ -20,24 +22,71 @@ func (cli *Client) ChatStream() error {
 	if err != nil {
 		return err
 	}
+	statusParts := resp.Status
+	statusCode, err := strconv.Atoi(statusParts[:3])
+	if err != nil {
+		return err
+	}
+	if  statusCode != http.StatusOK{
+		var baseResult  qianwenconfig.BaseResponse
+		var errResp qianwenconfig.ErrorResponse
+		baseResult.Status = http.StatusOK
 
+		data,err := io.ReadAll(resp.Body)
+		if err != nil {
+			return err
+		}
+		err = json.Unmarshal(data, &errResp)
+		if err != nil {
+			return err
+		}
+		baseResult.FinishReason = "stop"
+		baseResult.Message = errResp.Message
+		cli.Sender <- baseResult
+		return nil
+	}
+
+	var status int64
 	go func() {
 		defer resp.Body.Close()
 		scanner := bufio.NewScanner(resp.Body)
 		for scanner.Scan() {
 			line := scanner.Text()
+
+			statusRegex := regexp.MustCompile(`:HTTP_STATUS/(.*?)(\r?\n|$)`)
+			statusLine := statusRegex.FindStringSubmatch(line)
+			if len(statusLine) > 2 && status == 0 {
+				status,_ = strconv.ParseInt(statusLine[1],0,64)
+			}
+
 			dataRegex := regexp.MustCompile(`data:(.*?)(\r?\n|$)`)
 			match := dataRegex.FindStringSubmatch(line)
 			if len(match) < 2 {
 				continue
 			}
 			jsonData := match[1]
+
+			var baseResult  qianwenconfig.BaseResponse
 			var result qianwenconfig.ChatResponse
-			err := json.Unmarshal([]byte(jsonData), &result)
-			if err != nil {
-				continue
+			var errResp qianwenconfig.ErrorResponse
+			baseResult.Status = status
+			if status != http.StatusOK {
+				err := json.Unmarshal([]byte(jsonData), &errResp)
+				if err != nil {
+					return
+				}
+				baseResult.FinishReason = "stop"
+				baseResult.Message = errResp.Message
+				cli.Sender <- baseResult
+			}else{
+				err := json.Unmarshal([]byte(jsonData), &result)
+				if err != nil {
+					continue
+				}
+				baseResult.FinishReason = result.Output.FinishReason
+				baseResult.Message = result.Output.Text
+				cli.Sender <- baseResult
 			}
-			cli.Sender <- result
 		}
 	}()
 	return nil
@@ -47,7 +96,7 @@ func (cli *Client) ChatStream() error {
 func New(ctx context.Context,apiKey string,data map[string]interface{}) (*Client,error) {
 	cli := &Client{
 		client: &http.Client{},
-		Sender: make(chan qianwenconfig.ChatResponse,9999),
+		Sender: make(chan qianwenconfig.BaseResponse,9999),
 	}
 	config := qianwenconfig.DefaultConfig(apiKey)
 	jsonData, err := json.Marshal(data)

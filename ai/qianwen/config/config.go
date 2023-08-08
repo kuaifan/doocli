@@ -12,7 +12,7 @@ const (
 type QianWenClientConfig struct {
 	authToken 			 string
 	BaseURL              string
-	ContentType              string
+	ContentType          string
 	XDashScopeSSE        string   // 是否开启SSE
 	Data 				 map[string]interface{}
 	HTTPClient           *http.Client
@@ -21,6 +21,12 @@ type ChatResponse struct {
 	Output 				OutputResponse	`json:"output"`
 	Usage 				UsageResponse	`json:"usage"`
 	RequestId			string  		`json:"request_id"`
+}
+
+type BaseResponse struct {
+	Status 			int64
+	Message			string
+	FinishReason 	string
 }
 
 type OutputResponse struct {
@@ -55,12 +61,19 @@ type HistoryResquest struct {
 	Bot 	string `json:"bot"`
 }
 
-func (res ChatResponse) Recv()  error {
-	if res.Output.FinishReason=="stop" {
+type ErrorResponse struct {
+	Code 		string `json:"code"`
+	Message 	string `json:"message"`
+	RequestId 	string `json:"request_id"`
+}
+
+func (res BaseResponse) Recv()  error {
+	if res.FinishReason=="stop" {
 		return io.EOF
 	}
 	return nil
 }
+
 
 func DefaultConfig(authToken string) QianWenClientConfig {
 	return QianWenClientConfig{

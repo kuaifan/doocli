@@ -354,12 +354,12 @@ func (client *clientModel) qianwenStream(cli *qianwen.Client) {
 	client.message = ""
 	number := 0
 	for {
-		message, ok := <-cli.Sender
+		resp, ok := <-cli.Sender
 		if !ok {
 			return
 		}
-		client.append = message.Output.Text[len(client.message):]
-		client.message = message.Output.Text
+		client.append = resp.Message[len(client.message):]
+		client.message = resp.Message
 		//
 		if number == 0 || len(client.message) < 100 {
 			client.sendMessage("replace")
@@ -372,7 +372,7 @@ func (client *clientModel) qianwenStream(cli *qianwen.Client) {
 			number++
 		}
 
-		if message.Recv() != nil {
+		if resp.Recv() != nil {
 			return
 		}
 	}
