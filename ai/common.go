@@ -188,8 +188,8 @@ func (client *clientModel) claudeResponse(response chan types.PartialResponse) {
 		if message.Error != nil {
 			return
 		}
-		client.append = message.Text[len(client.message):]
-		client.message = message.Text
+		client.append = message.Text
+		client.message = fmt.Sprintf("%s%s", client.message, client.append)
 		//
 		if number == 0 || len(client.message) < 100 {
 			client.sendMessage("replace")
