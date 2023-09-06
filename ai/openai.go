@@ -92,11 +92,15 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 				"code":    "400",
 				"message": err.Error(),
 			})
+			message := err.Error()
+			if message == "" {
+				message = "Claude Create Chat Error, Please Try Again Later"
+			}
 			send.callRequest("sendtext", map[string]string{
 				"update_id":   send.id,
 				"update_mark": "no",
 				"dialog_id":   send.dialogId,
-				"text":        err.Error(),
+				"text":        message,
 				"text_type":   "md",
 				"silence":     "yes",
 			}, map[string]string{

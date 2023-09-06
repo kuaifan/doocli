@@ -94,6 +94,9 @@ func ClaudeSend(w http.ResponseWriter, req *http.Request) {
 		var message string
 		if err != nil {
 			message = err.Error()
+			if message == "" {
+				message = "Claude Reply Error, Please Try Again Later"
+			}
 		} else {
 			_ = db.SetConfig(organizationKey, chat.GetOptions().OrganizationId)
 			_ = db.SetConfig(conversationKey, chat.GetOptions().ConversationId)
