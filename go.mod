@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/hitosea/go-wenxin v0.0.6
 	github.com/nahid/gohttp v0.0.1
-	github.com/sashabaranov/go-openai v1.14.1
+	github.com/sashabaranov/go-openai v1.16.1
 	github.com/spf13/cobra v1.7.0
 	github.com/tidwall/gjson v1.14.4
 	modernc.org/sqlite v1.24.0

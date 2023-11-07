@@ -17,6 +17,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 	}
 	tmpKey := OpenaiKey
 	tmpAgency := OpenaiAgency
+	tmpModel := openai.GPT3Dot5Turbo
 	tmpValue := gjson.Get(send.extras, "openai_key")
 	if tmpValue.Exists() {
 		tmpKey = tmpValue.String()
@@ -24,6 +25,10 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 	tmpValue = gjson.Get(send.extras, "openai_agency")
 	if tmpValue.Exists() {
 		tmpAgency = tmpValue.String()
+	}
+	tmpValue = gjson.Get(send.extras, "openai_model")
+	if tmpValue.Exists() {
+		tmpModel = tmpValue.String()
 	}
 	if tmpKey == "" {
 		writeJson(w, map[string]string{
@@ -82,7 +87,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 		stream, err := oa.CreateChatCompletionStream(
 			context.Background(),
 			openai.ChatCompletionRequest{
-				Model:    openai.GPT3Dot5Turbo,
+				Model:    tmpModel,
 				Messages: oc.messages,
 				Stream:   true,
 			},
