@@ -102,6 +102,9 @@ func ClaudeSend(w http.ResponseWriter, req *http.Request) {
 			_ = db.SetConfig(conversationKey, chat.GetOptions().ConversationId)
 			client := getClient(send.id, true)
 			client.claudeResponse(response)
+			if client.message == "" {
+				client.message = "empty"
+			}
 			client.sendMessage("done")
 			message = client.message
 			client.remove()

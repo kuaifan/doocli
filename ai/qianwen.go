@@ -77,6 +77,9 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 		}
 		client := getClient(send.id, true)
 		client.qianwenStream(qianwenClient)
+		if client.message == "" {
+			client.message = "empty"
+		}
 		sendtext["text"] = client.message
 		oc.messages = append(oc.messages, &config.HistoryResquest{
 			User: "assistant",

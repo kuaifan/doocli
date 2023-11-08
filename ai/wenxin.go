@@ -86,9 +86,14 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 
-		defer stream.CloseSend()
+		defer func(stream aicustomv1.WenxinworkshopService_ChatCompletionsStreamClient) {
+			_ = stream.CloseSend()
+		}(stream)
 		client := getClient(send.id, true)
 		client.wenxinStream(stream)
+		if client.message == "" {
+			client.message = "empty"
+		}
 		sendtext["text"] = client.message
 		oc.messages = append(oc.messages, &aicustomv1.Message{
 			Role:    "assistant",

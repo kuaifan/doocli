@@ -118,6 +118,9 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 
 		client := getClient(send.id, true)
 		client.openaiStream(stream)
+		if client.message == "" {
+			client.message = "empty"
+		}
 		message := client.message
 		oc.messages = append(oc.messages, openai.ChatCompletionMessage{
 			Role:    openai.ChatMessageRoleAssistant,
