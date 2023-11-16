@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"unicode/utf8"
 
 	"github.com/alexandrevicenzi/go-sse"
 	aicustomv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
@@ -216,12 +217,15 @@ func (client *clientModel) openaiStream(stream *openai.ChatCompletionStream) {
 		if err != nil {
 			return
 		}
-		client.append = response.Choices[0].Delta.Content
-		client.message = fmt.Sprintf("%s%s", client.message, client.append)
-		if len(client.message)%7 == 0 || len(client.message) < 10 {
+		message := response.Choices[0].Delta.Content
+		client.append = fmt.Sprintf("%s%s", client.append, message)
+		client.message = fmt.Sprintf("%s%s", client.message, message)
+		if number == 0 || len(client.message) < 10 {
 			client.sendMessage("replace")
-		} else {
-			// client.sendMessage("append")
+			client.append = ""
+		} else if utf8.RuneCountInString(client.append) >= 7 {
+			client.sendMessage("append")
+			client.append = ""
 		}
 		if number > 20 {
 			number = 0
