@@ -218,11 +218,10 @@ func (client *clientModel) openaiStream(stream *openai.ChatCompletionStream) {
 		}
 		client.append = response.Choices[0].Delta.Content
 		client.message = fmt.Sprintf("%s%s", client.message, client.append)
-		//
-		if number == 0 || len(client.message) < 100 {
+		if len(client.message)%7 == 0 || len(client.message) < 10 {
 			client.sendMessage("replace")
 		} else {
-			client.sendMessage("append")
+			// client.sendMessage("append")
 		}
 		if number > 20 {
 			number = 0
