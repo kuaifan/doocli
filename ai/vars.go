@@ -49,8 +49,9 @@ var (
 	ClaudeToken  string
 	ClaudeAgency string
 
-	OpenaiKey    string
-	OpenaiAgency string
+	OpenaiKey       string
+	OpenaiAgency    string
+	OpenaiWordCount int
 
 	WenxinKey    string
 	WenxinSecret string

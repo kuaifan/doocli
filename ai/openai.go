@@ -5,6 +5,7 @@ import (
 	"doocli/utils"
 	"net/http"
 	"net/url"
+	"strconv"
 
 	"github.com/sashabaranov/go-openai"
 	"github.com/tidwall/gjson"
@@ -18,6 +19,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 	tmpKey := OpenaiKey
 	tmpAgency := OpenaiAgency
 	tmpModel := openai.GPT3Dot5Turbo
+	tmpWordCount := OpenaiWordCount
 	tmpValue := gjson.Get(send.extras, "openai_key")
 	if tmpValue.Exists() {
 		tmpKey = tmpValue.String()
@@ -29,6 +31,29 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 	tmpValue = gjson.Get(send.extras, "openai_model")
 	if tmpValue.Exists() {
 		tmpModel = tmpValue.String()
+	}
+	tmpValue = gjson.Get(send.extras, "word_count")
+	if tmpValue.Exists() {
+		intValue, err := strconv.Atoi(tmpValue.String())
+		if err != nil {
+			writeJson(w, map[string]string{
+				"code":    "400",
+				"message": "Parameter error",
+			})
+			send.callRequest("sendtext", map[string]string{
+				"update_id":   send.id,
+				"update_mark": "no",
+				"dialog_id":   send.dialogId,
+				"text":        "Parameter error",
+				"text_type":   "md",
+				"silence":     "yes",
+			}, map[string]string{
+				"version": send.version,
+				"token":   send.token,
+			})
+			return
+		}
+		tmpWordCount = intValue
 	}
 	if tmpKey == "" {
 		writeJson(w, map[string]string{
@@ -117,7 +142,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 		defer stream.Close()
 
 		client := getClient(send.id, true)
-		client.openaiStream(stream)
+		client.openaiStream(stream, tmpWordCount)
 		if client.message == "" {
 			client.message = "empty"
 		}
