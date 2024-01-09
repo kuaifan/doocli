@@ -45,13 +45,13 @@ type qianwenModel struct {
 var (
 	HttpPort  string
 	ServerUrl string
+	ChunkSize int
 
 	ClaudeToken  string
 	ClaudeAgency string
 
-	OpenaiKey       string
-	OpenaiAgency    string
-	OpenaiWordCount int
+	OpenaiKey    string
+	OpenaiAgency string
 
 	WenxinKey    string
 	WenxinSecret string

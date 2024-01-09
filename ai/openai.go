@@ -19,7 +19,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 	tmpKey := OpenaiKey
 	tmpAgency := OpenaiAgency
 	tmpModel := openai.GPT3Dot5Turbo
-	tmpWordCount := OpenaiWordCount
+	tmpChunkSize := ChunkSize
 	tmpValue := gjson.Get(send.extras, "openai_key")
 	if tmpValue.Exists() {
 		tmpKey = tmpValue.String()
@@ -32,7 +32,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 	if tmpValue.Exists() {
 		tmpModel = tmpValue.String()
 	}
-	tmpValue = gjson.Get(send.extras, "word_count")
+	tmpValue = gjson.Get(send.extras, "chunk_size")
 	if tmpValue.Exists() {
 		intValue, err := strconv.Atoi(tmpValue.String())
 		if err != nil {
@@ -53,7 +53,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 			})
 			return
 		}
-		tmpWordCount = intValue
+		tmpChunkSize = intValue
 	}
 	if tmpKey == "" {
 		writeJson(w, map[string]string{
@@ -142,7 +142,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 		defer stream.Close()
 
 		client := getClient(send.id, true)
-		client.openaiStream(stream, tmpWordCount)
+		client.openaiStream(stream, tmpChunkSize)
 		if client.message == "" {
 			client.message = "empty"
 		}

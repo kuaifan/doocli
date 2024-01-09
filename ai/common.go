@@ -205,12 +205,12 @@ func (client *clientModel) claudeResponse(response chan types.PartialResponse) {
 	}
 }
 
-func (client *clientModel) openaiStream(stream *openai.ChatCompletionStream, wordCount int) {
+func (client *clientModel) openaiStream(stream *openai.ChatCompletionStream, chunkSize int) {
 	client.append = ""
 	client.message = ""
 	number := 0
-	if wordCount < 1 {
-		wordCount = 7
+	if chunkSize < 1 {
+		chunkSize = 7
 	}
 	for {
 		response, err := stream.Recv()
@@ -226,7 +226,7 @@ func (client *clientModel) openaiStream(stream *openai.ChatCompletionStream, wor
 		if number == 0 || len(client.message) < 10 {
 			client.sendMessage("replace")
 			client.append = ""
-		} else if utf8.RuneCountInString(client.append) >= wordCount {
+		} else if utf8.RuneCountInString(client.append) >= chunkSize {
 			client.sendMessage("append")
 			client.append = ""
 		}
