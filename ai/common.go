@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 	"unicode/utf8"
 
 	"github.com/alexandrevicenzi/go-sse"
@@ -53,7 +54,7 @@ func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
 	}, map[string]string{
 		"version": send.version,
 		"token":   send.token,
-	})
+	}, false)
 	if send.id == "" {
 		writeJson(w, map[string]string{
 			"code":    "400",
@@ -69,12 +70,16 @@ func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
 	}, map[string]string{
 		"version": send.version,
 		"token":   send.token,
-	})
+	}, false)
 
 	return send
 }
 
-func (send *sendModel) callRequest(action string, data map[string]string, header map[string]string) string {
+func (send *sendModel) callRequest(action string, data map[string]string, header map[string]string, done bool) string {
+	if done {
+		doneClient(send.id)
+	}
+	//
 	tmpUrl := ServerUrl
 	tmpValue := gjson.Get(send.extras, "server_url")
 	if tmpValue.Exists() {
@@ -129,6 +134,18 @@ func getClient(id string, createAuto bool) *clientModel {
 		return client
 	}
 	return nil
+}
+
+func doneClient(id string) {
+	go func() {
+		client := getClient(id, true)
+		for i := 0; i < 30; i++ {
+			time.Sleep(1 * time.Second)
+			client.message = "done"
+			client.sendMessage("done")
+		}
+		client.remove()
+	}()
 }
 
 func (send *sendModel) openaiContext() *openaiModel {

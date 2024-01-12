@@ -50,14 +50,14 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 	if tmpKey == "" {
 		sendtext["text"] = "OpenaiKey is empty"
 		writeJson(w, map[string]string{"code": "400", "message": sendtext["text"]})
-		send.callRequest("sendtext", sendtext, tokens)
+		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
 
 	if utils.InArray(send.text, clears) {
 		send.wenxinContextClear()
 		sendtext["text"] = "Operation Successful"
-		send.callRequest("sendtext", sendtext, tokens)
+		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
 
@@ -70,7 +70,7 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			writeJson(w, map[string]string{"code": "400", "message": err.Error()})
 			sendtext["text"] = err.Error()
-			send.callRequest("sendtext", sendtext, tokens)
+			send.callRequest("sendtext", sendtext, tokens, true)
 			return
 		}
 
@@ -82,7 +82,7 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			writeJson(w, map[string]string{"code": "400", "message": err.Error()})
 			sendtext["text"] = err.Error()
-			send.callRequest("sendtext", sendtext, tokens)
+			send.callRequest("sendtext", sendtext, tokens, true)
 			return
 		}
 
@@ -102,7 +102,7 @@ func WenxinSend(w http.ResponseWriter, req *http.Request) {
 		client.sendMessage("done")
 		client.remove()
 
-		send.callRequest("sendtext", sendtext, tokens)
+		send.callRequest("sendtext", sendtext, tokens, false)
 	}()
 	//
 	writeJson(w, map[string]string{

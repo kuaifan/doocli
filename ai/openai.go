@@ -50,7 +50,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 			}, map[string]string{
 				"version": send.version,
 				"token":   send.token,
-			})
+			}, true)
 			return
 		}
 		tmpChunkSize = intValue
@@ -70,7 +70,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 		}, map[string]string{
 			"version": send.version,
 			"token":   send.token,
-		})
+		}, true)
 		return
 	}
 
@@ -86,7 +86,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 		}, map[string]string{
 			"version": send.version,
 			"token":   send.token,
-		})
+		}, true)
 		return
 	}
 
@@ -136,7 +136,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 			}, map[string]string{
 				"version": send.version,
 				"token":   send.token,
-			})
+			}, true)
 			return
 		}
 		defer stream.Close()
@@ -163,7 +163,7 @@ func OpenaiSend(w http.ResponseWriter, req *http.Request) {
 		}, map[string]string{
 			"version": send.version,
 			"token":   send.token,
-		})
+		}, false)
 	}()
 	//
 	writeJson(w, map[string]string{

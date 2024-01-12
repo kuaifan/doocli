@@ -43,13 +43,13 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 			"code":    "400",
 			"message": "OpenaiKey is empty",
 		})
-		send.callRequest("sendtext", sendtext, tokens)
+		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
 	if utils.InArray(send.text, clears) {
 		send.wenxinContextClear()
 		sendtext["text"] = "Operation Successful"
-		send.callRequest("sendtext", sendtext, tokens)
+		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
 
@@ -65,14 +65,14 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			writeJson(w, map[string]string{"code": "400", "message": err.Error()})
 			sendtext["text"] = err.Error()
-			send.callRequest("sendtext", sendtext, tokens)
+			send.callRequest("sendtext", sendtext, tokens, true)
 			return
 		}
 		err = qianwenClient.ChatStream()
 		if err != nil {
 			writeJson(w, map[string]string{"code": "400", "message": err.Error()})
 			sendtext["text"] = err.Error()
-			send.callRequest("sendtext", sendtext, tokens)
+			send.callRequest("sendtext", sendtext, tokens, true)
 			return
 		}
 		client := getClient(send.id, true)
@@ -87,7 +87,7 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 		})
 		client.sendMessage("done")
 		client.remove()
-		send.callRequest("sendtext", sendtext, tokens)
+		send.callRequest("sendtext", sendtext, tokens, false)
 	}()
 	writeJson(w, map[string]string{
 		"code":   "200",

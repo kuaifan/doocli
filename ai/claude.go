@@ -40,7 +40,7 @@ func ClaudeSend(w http.ResponseWriter, req *http.Request) {
 		}, map[string]string{
 			"version": send.version,
 			"token":   send.token,
-		})
+		}, true)
 		return
 	}
 
@@ -59,7 +59,7 @@ func ClaudeSend(w http.ResponseWriter, req *http.Request) {
 		}, map[string]string{
 			"version": send.version,
 			"token":   send.token,
-		})
+		}, true)
 		return
 	}
 
@@ -85,7 +85,7 @@ func ClaudeSend(w http.ResponseWriter, req *http.Request) {
 		}, map[string]string{
 			"version": send.version,
 			"token":   send.token,
-		})
+		}, true)
 		return
 	}
 
@@ -119,7 +119,7 @@ func ClaudeSend(w http.ResponseWriter, req *http.Request) {
 		}, map[string]string{
 			"version": send.version,
 			"token":   send.token,
-		})
+		}, false)
 	}()
 	//
 	writeJson(w, map[string]string{
