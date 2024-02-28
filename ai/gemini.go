@@ -2,25 +2,26 @@ package ai
 
 import (
 	"context"
-	"doocli/ai/qianwen"
-	"doocli/ai/qianwen/config"
+	"doocli/ai/gemini"
 	"doocli/utils"
+	"github.com/google/generative-ai-go/genai"
 	"github.com/tidwall/gjson"
+	"google.golang.org/api/option"
 	"net/http"
 )
 
-func QianWenSend(w http.ResponseWriter, req *http.Request) {
+func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	send := callSend(w, req)
 	if send == nil {
 		return
 	}
-	tmpKey := QianwenKey
-	tmpModel := QianwenModel
-	tmpValue := gjson.Get(send.extras, "qianwen_key")
+	tmpKey := GeminiKey
+	tmpModel := GeminiModel
+	tmpValue := gjson.Get(send.extras, "gemini_key")
 	if tmpValue.Exists() {
 		tmpKey = tmpValue.String()
 	}
-	tmpValue = gjson.Get(send.extras, "qianwen_model")
+	tmpValue = gjson.Get(send.extras, "gemini_model")
 	if tmpValue.Exists() {
 		tmpModel = tmpValue.String()
 	}
@@ -37,6 +38,7 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 		"version": send.version,
 		"token":   send.token,
 	}
+
 	if tmpKey == "" {
 		writeJson(w, map[string]string{
 			"code":    "400",
@@ -45,49 +47,35 @@ func QianWenSend(w http.ResponseWriter, req *http.Request) {
 		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
+
 	if utils.InArray(send.text, clears) {
-		send.qianwenContextClear()
+		send.geminiContextClear()
 		sendtext["text"] = "Operation Successful"
 		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
-
 	go func() {
-		oc := send.qianwenContext()
-		qianwenClient, err := qianwen.New(context.Background(), tmpKey, map[string]interface{}{
-			"model": tmpModel,
-			"input": config.InputResquest{
-				Message: send.text,
-				History: oc.messages,
-			},
-		})
+		client2, err := genai.NewClient(context.Background(), option.WithAPIKey(tmpKey))
 		if err != nil {
-			writeJson(w, map[string]string{"code": "400", "message": err.Error()})
-			sendtext["text"] = err.Error()
+			sendtext["text"] = "err：" + err.Error()
 			send.callRequest("sendtext", sendtext, tokens, true)
-			return
 		}
-		err = qianwenClient.ChatStream()
-		if err != nil {
-			writeJson(w, map[string]string{"code": "400", "message": err.Error()})
-			sendtext["text"] = err.Error()
-			send.callRequest("sendtext", sendtext, tokens, true)
-			return
-		}
+
+		gemiCLient := gemini.NewGemniClient(client2, tmpModel)
 		client := getClient(send.id, true)
-		client.qianwenStream(qianwenClient)
+		client.message = send.text
+		model := send.geminiContext()
+		//设置上下文
+		model.messages = append(client.geminiStream(gemiCLient, model.messages))
 		if client.message == "" {
 			client.message = "empty"
 		}
 		sendtext["text"] = client.message
-		oc.messages = append(oc.messages, &config.HistoryResquest{
-			User: "assistant",
-			Bot:  sendtext["text"],
-		})
 		client.sendMessage("done")
 		client.remove()
 		send.callRequest("sendtext", sendtext, tokens, false)
 	}()
+
 	writeJson(w, map[string]string{
 		"code":   "200",
 		"msg_id": send.id,

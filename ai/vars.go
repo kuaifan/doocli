@@ -2,6 +2,7 @@ package ai
 
 import (
 	"doocli/ai/qianwen/config"
+	"github.com/google/generative-ai-go/genai"
 
 	"github.com/alexandrevicenzi/go-sse"
 	aicustomv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
@@ -37,9 +38,15 @@ type wenxinModel struct {
 	user     string
 	messages []*aicustomv1.Message
 }
+
 type qianwenModel struct {
 	user     string
 	messages []*config.HistoryResquest
+}
+
+type geminiModel struct {
+	user     string
+	messages []*genai.Content
 }
 
 var (
@@ -60,11 +67,15 @@ var (
 	QianwenKey   string
 	QianwenModel string
 
+	GeminiKey   string
+	GeminiModel string
+
 	sources        *sse.Server
 	clients        []*clientModel
 	openaiContext  []*openaiModel
 	wenxinContext  []*wenxinModel
 	qianwenContext []*qianwenModel
+	geminiContext  []*geminiModel
 
 	clears = []string{":clear", ":reset", ":restart", ":new", ":清空上下文", ":重置上下文", ":重启", ":重启对话"}
 )

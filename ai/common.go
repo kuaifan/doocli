@@ -1,22 +1,25 @@
 package ai
 
 import (
+	"context"
 	"doocli/ai/claude/types"
+	"doocli/ai/gemini"
 	"doocli/ai/qianwen"
 	qianwenconfig "doocli/ai/qianwen/config"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"net/http"
-	"time"
-	"unicode/utf8"
-
 	"github.com/alexandrevicenzi/go-sse"
+	"github.com/google/generative-ai-go/genai"
 	aicustomv1 "github.com/hitosea/go-wenxin/gen/go/baidubce/ai_custom/v1"
 	"github.com/nahid/gohttp"
 	"github.com/sashabaranov/go-openai"
 	"github.com/tidwall/gjson"
+	"google.golang.org/api/iterator"
+	"io"
+	"net/http"
+	"time"
+	"unicode/utf8"
 )
 
 func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
@@ -365,7 +368,7 @@ func (send *sendModel) qianwenContextClear() {
 	user := "qianwen_" + send.dialogId + "_" + send.msgUid
 	for i, oc := range qianwenContext {
 		if oc.user == user {
-			wenxinContext = append(wenxinContext[:i], wenxinContext[i+1:]...)
+			qianwenContext = append(qianwenContext[:i], qianwenContext[i+1:]...)
 			break
 		}
 	}
@@ -391,6 +394,87 @@ func (client *clientModel) qianwenStream(cli *qianwen.Client) {
 			number = 0
 		} else {
 			number++
+		}
+	}
+}
+
+func (send *sendModel) geminiContext() *geminiModel {
+	user := "gemini_" + send.dialogId + "_" + send.msgUid
+	var value *geminiModel
+	for _, oc := range geminiContext {
+		if oc.user == user {
+			value = oc
+			break
+		}
+	}
+	if value == nil {
+		value = &geminiModel{
+			user:     user,
+			messages: make([]*genai.Content, 0),
+		}
+		geminiContext = append(geminiContext, value)
+		return value
+	} else if len(value.messages) > 10 {
+		value.messages = value.messages[len(value.messages)-10:]
+	}
+	length := 0
+	index := 0
+	for i := len(value.messages) - 1; i >= 0; i-- {
+		length += len(value.messages[i].Role)
+		if length > 4000 {
+			value.messages = value.messages[len(value.messages)-index:]
+			break
+		}
+		index++
+	}
+	return value
+}
+
+func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*genai.Content) []*genai.Content {
+	prompt := genai.Text(client.message)
+	cs := cli.Model.StartChat()
+	cs.History = history
+	iter := cs.SendMessageStream(context.Background(), prompt) //Error
+	number := 0
+	client.message = ""
+	client.append = ""
+	for {
+		resp, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			client.message = "err：" + err.Error()
+			client.sendMessage("replace")
+			continue
+		}
+		s, ok := resp.Candidates[0].Content.Parts[0].(genai.Text)
+		if ok {
+			msg := string(s)
+			client.append = fmt.Sprintf("%s%s", client.append, msg)
+			client.message = fmt.Sprintf("%s%s", client.message, msg)
+			if number == 0 || len(client.message) < 10 {
+				client.sendMessage("replace")
+				client.append = ""
+			} else {
+				client.sendMessage("append")
+				client.append = ""
+			}
+			if number > 20 {
+				number = 0
+			} else {
+				number++
+			}
+		}
+	}
+	return cs.History
+}
+func (send *sendModel) geminiContextClear() {
+	user := "gemini_" + send.dialogId + "_" + send.msgUid
+	for i, oc := range geminiContext {
+		if oc.user == user {
+			geminiContext = append(geminiContext[:i], geminiContext[i+1:]...)
+			break
 		}
 	}
 }
