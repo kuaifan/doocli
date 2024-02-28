@@ -36,6 +36,7 @@ func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
 		version:    req.PostFormValue("version"),
 		extras:     req.PostFormValue("extras"),
 	}
+
 	if send.text == "" || send.token == "" || send.dialogId == "" || send.msgUid == "" || send.botUid == "" || send.version == "" {
 		writeJson(w, map[string]string{
 			"code":    "400",
@@ -43,6 +44,7 @@ func callSend(w http.ResponseWriter, req *http.Request) *sendModel {
 		})
 		return nil
 	}
+
 	replyId := ""
 	if send.dialogType == "group" {
 		replyId = send.msgId
@@ -430,11 +432,11 @@ func (send *sendModel) geminiContext() *geminiModel {
 	return value
 }
 
-func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*genai.Content) []*genai.Content {
+func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*genai.Content) ([]*genai.Content, error) {
 	prompt := genai.Text(client.message)
 	cs := cli.Model.StartChat()
 	cs.History = history
-	iter := cs.SendMessageStream(context.Background(), prompt) //Error
+	iter := cs.SendMessageStream(context.Background(), prompt)
 	number := 0
 	client.message = ""
 	client.append = ""
@@ -444,9 +446,7 @@ func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*gen
 			break
 		}
 		if err != nil {
-			client.message = "err：" + err.Error()
-			client.sendMessage("replace")
-			continue
+			return cs.History, err
 		}
 		s, ok := resp.Candidates[0].Content.Parts[0].(genai.Text)
 		if ok {
@@ -467,7 +467,7 @@ func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*gen
 			}
 		}
 	}
-	return cs.History
+	return cs.History, nil
 }
 func (send *sendModel) geminiContextClear() {
 	user := "gemini_" + send.dialogId + "_" + send.msgUid

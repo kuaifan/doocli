@@ -7,7 +7,6 @@ require (
 	github.com/bincooo/requests v0.0.0-20230720064210-7eae5d6c9d1e
 	github.com/google/generative-ai-go v0.8.0
 	github.com/google/uuid v1.4.0
-	github.com/gookit/goutil v0.6.15
 	github.com/hitosea/go-wenxin v0.0.6
 	github.com/nahid/gohttp v0.0.1
 	github.com/sashabaranov/go-openai v1.16.1
@@ -37,7 +36,6 @@ require (
 	github.com/google/s2a-go v0.1.7 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.12.0 // indirect
-	github.com/gookit/color v1.5.4 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.15.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
@@ -60,7 +58,6 @@ require (
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
 	github.com/wangluozhe/fhttp v0.0.0-20230512135433-5c2ebfb4868a // indirect
-	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.opencensus.io v0.24.0 // indirect
 	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect

@@ -15,6 +15,7 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	if send == nil {
 		return
 	}
+
 	tmpKey := GeminiKey
 	tmpModel := GeminiModel
 	tmpProxy := GeminiAgency
@@ -48,7 +49,7 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	if tmpKey == "" {
 		writeJson(w, map[string]string{
 			"code":    "400",
-			"message": "OpenaiKey is empty",
+			"message": "GeminiKey is empty",
 		})
 		send.callRequest("sendtext", sendtext, tokens, true)
 		return
@@ -62,17 +63,26 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	}
 
 	go func() {
-
 		c := &http.Client{Transport: &gemini.APIKeyProxyTransport{
 			APIKey:    tmpKey,
 			Transport: nil,
 			ProxyURL:  tmpProxy,
 		}}
-
-		client2, err := genai.NewClient(context.Background(), option.WithHTTPClient(c), option.WithAPIKey(tmpKey))
+		client2, err := genai.NewClient(context.Background(), option.WithAPIKey(tmpKey), option.WithHTTPClient(c))
 		if err != nil {
 			sendtext["text"] = "err：" + err.Error()
 			send.callRequest("sendtext", sendtext, tokens, true)
+			return
+		}
+
+		defer client2.Close()
+
+		iter := client2.ListModels(context.Background())
+		_, err = iter.Next()
+		if err != nil {
+			sendtext["text"] = "err：" + err.Error()
+			send.callRequest("sendtext", sendtext, tokens, true)
+			return
 		}
 
 		gemiCLient := gemini.NewGemniClient(client2, tmpModel)
@@ -80,7 +90,13 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 		client.message = send.text
 		model := send.geminiContext()
 
-		model.messages = append(client.geminiStream(gemiCLient, model.messages))
+		hs, err := client.geminiStream(gemiCLient, model.messages)
+		if err != nil {
+			sendtext["text"] = "err：" + err.Error()
+			send.callRequest("sendtext", sendtext, tokens, true)
+			return
+		}
+		model.messages = append(hs)
 		if client.message == "" {
 			client.message = "empty"
 		}
