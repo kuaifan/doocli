@@ -17,6 +17,8 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	}
 	tmpKey := GeminiKey
 	tmpModel := GeminiModel
+	tmpProxy := GeminiAgency
+
 	tmpValue := gjson.Get(send.extras, "gemini_key")
 	if tmpValue.Exists() {
 		tmpKey = tmpValue.String()
@@ -24,6 +26,10 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	tmpValue = gjson.Get(send.extras, "gemini_model")
 	if tmpValue.Exists() {
 		tmpModel = tmpValue.String()
+	}
+	tmpValue = gjson.Get(send.extras, "gemini_agency")
+	if tmpValue.Exists() {
+		tmpProxy = tmpValue.String()
 	}
 
 	sendtext := map[string]string{
@@ -54,8 +60,16 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
+
 	go func() {
-		client2, err := genai.NewClient(context.Background(), option.WithAPIKey(tmpKey))
+
+		c := &http.Client{Transport: &gemini.APIKeyProxyTransport{
+			APIKey:    tmpKey,
+			Transport: nil,
+			ProxyURL:  tmpProxy,
+		}}
+
+		client2, err := genai.NewClient(context.Background(), option.WithHTTPClient(c), option.WithAPIKey(tmpKey))
 		if err != nil {
 			sendtext["text"] = "err：" + err.Error()
 			send.callRequest("sendtext", sendtext, tokens, true)
@@ -65,7 +79,7 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 		client := getClient(send.id, true)
 		client.message = send.text
 		model := send.geminiContext()
-		//设置上下文
+
 		model.messages = append(client.geminiStream(gemiCLient, model.messages))
 		if client.message == "" {
 			client.message = "empty"

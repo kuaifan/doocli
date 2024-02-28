@@ -67,8 +67,9 @@ var (
 	QianwenKey   string
 	QianwenModel string
 
-	GeminiKey   string
-	GeminiModel string
+	GeminiKey    string
+	GeminiModel  string
+	GeminiAgency string
 
 	sources        *sse.Server
 	clients        []*clientModel
