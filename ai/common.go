@@ -454,10 +454,8 @@ func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*gen
 			msg := string(s)
 			client.append = fmt.Sprintf("%s%s", client.append, msg)
 			client.message = fmt.Sprintf("%s%s", client.message, msg)
-
 			client.sendMessage("append")
 			client.append = ""
-
 		}
 	}
 	return cs.History, nil
