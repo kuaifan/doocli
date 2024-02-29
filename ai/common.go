@@ -419,6 +419,7 @@ func (send *sendModel) geminiContext() *geminiModel {
 	} else if len(value.messages) > 10 {
 		value.messages = value.messages[len(value.messages)-10:]
 	}
+
 	length := 0
 	index := 0
 	for i := len(value.messages) - 1; i >= 0; i-- {
@@ -437,9 +438,9 @@ func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*gen
 	cs := cli.Model.StartChat()
 	cs.History = history
 	iter := cs.SendMessageStream(context.Background(), prompt)
-	number := 0
-	client.message = ""
+	client.message = " "
 	client.append = ""
+	client.sendMessage("replace")
 	for {
 		resp, err := iter.Next()
 		if err == iterator.Done {
@@ -453,18 +454,10 @@ func (client *clientModel) geminiStream(cli *gemini.GeminiClient, history []*gen
 			msg := string(s)
 			client.append = fmt.Sprintf("%s%s", client.append, msg)
 			client.message = fmt.Sprintf("%s%s", client.message, msg)
-			if number == 0 || len(client.message) < 10 {
-				client.sendMessage("replace")
-				client.append = ""
-			} else {
-				client.sendMessage("append")
-				client.append = ""
-			}
-			if number > 20 {
-				number = 0
-			} else {
-				number++
-			}
+
+			client.sendMessage("append")
+			client.append = ""
+
 		}
 	}
 	return cs.History, nil
