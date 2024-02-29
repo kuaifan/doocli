@@ -67,7 +67,8 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	go func() {
 		proxyUrl, err := url.Parse(tmpProxy)
 		if err != nil {
-			panic(err)
+			sendtext["text"] = "err：" + err.Error()
+			send.callRequest("sendtext", sendtext, tokens, true)
 		}
 		c := &http.Client{
 			Timeout: time.Second * 15, // 设置超时时间为10秒
