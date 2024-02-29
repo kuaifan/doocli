@@ -8,6 +8,8 @@ import (
 	"github.com/tidwall/gjson"
 	"google.golang.org/api/option"
 	"net/http"
+	"net/url"
+	"time"
 )
 
 func GeminiSend(w http.ResponseWriter, req *http.Request) {
@@ -63,20 +65,26 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	}
 
 	go func() {
-		c := &http.Client{Transport: &gemini.APIKeyProxyTransport{
-			APIKey:    tmpKey,
-			Transport: nil,
-			ProxyURL:  tmpProxy,
-		}}
+		proxyUrl, err := url.Parse(tmpProxy)
+		if err != nil {
+			panic(err)
+		}
+		c := &http.Client{
+			Timeout: time.Second * 15, // 设置超时时间为10秒
+			Transport: &gemini.CustomTransport{
+				Transport: &http.Transport{
+					Proxy: http.ProxyURL(proxyUrl),
+				},
+				Key: tmpKey,
+			}}
+
 		client2, err := genai.NewClient(context.Background(), option.WithAPIKey(tmpKey), option.WithHTTPClient(c))
 		if err != nil {
 			sendtext["text"] = "err：" + err.Error()
 			send.callRequest("sendtext", sendtext, tokens, true)
 			return
 		}
-
 		defer client2.Close()
-
 		iter := client2.ListModels(context.Background())
 		_, err = iter.Next()
 		if err != nil {
@@ -84,7 +92,6 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 			send.callRequest("sendtext", sendtext, tokens, true)
 			return
 		}
-
 		gemiCLient := gemini.NewGemniClient(client2, tmpModel)
 		client := getClient(send.id, true)
 		client.message = send.text
@@ -110,5 +117,6 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 		"code":   "200",
 		"msg_id": send.id,
 	})
+
 	return
 }
