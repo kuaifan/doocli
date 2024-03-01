@@ -67,9 +67,10 @@ var (
 	QianwenKey   string
 	QianwenModel string
 
-	GeminiKey    string
-	GeminiModel  string
-	GeminiAgency string
+	GeminiKey     string
+	GeminiModel   string
+	GeminiAgency  string
+	GeminiTimeout int64 = 20
 
 	sources        *sse.Server
 	clients        []*clientModel

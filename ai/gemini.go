@@ -21,6 +21,7 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	tmpKey := GeminiKey
 	tmpModel := GeminiModel
 	tmpProxy := GeminiAgency
+	tmpTimeout := GeminiTimeout
 
 	tmpValue := gjson.Get(send.extras, "gemini_key")
 	if tmpValue.Exists() {
@@ -33,6 +34,10 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 	tmpValue = gjson.Get(send.extras, "gemini_agency")
 	if tmpValue.Exists() {
 		tmpProxy = tmpValue.String()
+	}
+	tmpValue = gjson.Get(send.extras, "gemini_timeout")
+	if tmpValue.Exists() {
+		tmpTimeout = tmpValue.Int()
 	}
 
 	sendtext := map[string]string{
@@ -63,7 +68,9 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 		send.callRequest("sendtext", sendtext, tokens, true)
 		return
 	}
-
+	if tmpTimeout == 0 {
+		tmpTimeout = 20
+	}
 	go func() {
 		proxyUrl, err := url.Parse(tmpProxy)
 		if err != nil {
@@ -72,7 +79,7 @@ func GeminiSend(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		c := &http.Client{
-			Timeout: time.Second * 15, // 设置超时时间为10秒
+			Timeout: time.Duration(tmpTimeout) * time.Second,
 			Transport: &gemini.CustomTransport{
 				Transport: &http.Transport{
 					Proxy: http.ProxyURL(proxyUrl),
