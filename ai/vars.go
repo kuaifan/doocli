@@ -2,6 +2,7 @@ package ai
 
 import (
 	"doocli/ai/qianwen/config"
+	"doocli/ai/zhipu/model_api"
 	"github.com/google/generative-ai-go/genai"
 
 	"github.com/alexandrevicenzi/go-sse"
@@ -49,6 +50,11 @@ type geminiModel struct {
 	messages []*genai.Content
 }
 
+type zhipuModel struct {
+	user     string
+	messages []*model_api.Messages
+}
+
 var (
 	HttpPort  string
 	ServerUrl string
@@ -72,12 +78,17 @@ var (
 	GeminiAgency  string
 	GeminiTimeout int64 = 20
 
+	ZhipuKey          string
+	ZhipuModel        string
+	ZhipuExpireAtTime = int64(1640995200) // token 过期时间
+
 	sources        *sse.Server
 	clients        []*clientModel
 	openaiContext  []*openaiModel
 	wenxinContext  []*wenxinModel
 	qianwenContext []*qianwenModel
 	geminiContext  []*geminiModel
+	zhipuContext   []*zhipuModel
 
 	clears = []string{":clear", ":reset", ":restart", ":new", ":清空上下文", ":重置上下文", ":重启", ":重启对话"}
 )

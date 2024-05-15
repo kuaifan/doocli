@@ -1,11 +1,13 @@
 package ai
 
 import (
+	"bufio"
 	"context"
 	"doocli/ai/claude/types"
 	"doocli/ai/gemini"
 	"doocli/ai/qianwen"
 	qianwenconfig "doocli/ai/qianwen/config"
+	"doocli/ai/zhipu/model_api"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -197,6 +199,94 @@ func (send *sendModel) openaiContextClear() {
 			break
 		}
 	}
+}
+
+func (send *sendModel) zhipuContext() *zhipuModel {
+	key := "zhipu_" + send.dialogId + "_" + send.msgUid
+	var value *zhipuModel
+	for _, zc := range zhipuContext {
+		if zc.user == key {
+			value = zc
+			break
+		}
+	}
+
+	if value == nil {
+		//初始化上下文
+		value = &zhipuModel{
+			user:     key,
+			messages: make([]*model_api.Messages, 0),
+		}
+		zhipuContext = append(zhipuContext, value)
+	} else if len(value.messages) > 10 {
+		value.messages = value.messages[len(value.messages)-10:]
+	}
+
+	value.messages = append(value.messages, &model_api.Messages{
+		Role:    "user",
+		Content: send.text,
+	})
+
+	length := 0
+	index := 0
+	for i := len(value.messages) - 1; i >= 0; i-- {
+		this := value.messages[i].Content
+		length += len(this)
+		if length > 4000 {
+			value.messages = value.messages[len(value.messages)-index:]
+			break
+		}
+		index++
+	}
+	return value
+}
+
+func (send *sendModel) zhipuContextClear() {
+	key := "zhipu_" + send.dialogId + "_" + send.msgUid
+	for i, oc := range zhipuContext {
+		if oc.user == key {
+			zhipuContext = append(zhipuContext[:i], zhipuContext[i+1:]...)
+			break
+		}
+	}
+}
+
+func (client *clientModel) zhipuStream(o *bufio.Scanner) error {
+	client.append = ""
+	client.message = ""
+	number := 0
+	for o.Scan() {
+		resp := o.Text()
+		m, err := model_api.ParseResponse(resp)
+		if err != nil {
+			return err
+		}
+		if m != nil && m.Choices != nil {
+			if len(m.Choices) > 0 || m.Choices[0].FinishReason != "stop" {
+				message := m.Choices[0].Delta.Content
+				client.append = fmt.Sprintf("%s%s", client.append, message)
+				client.message = fmt.Sprintf("%s%s", client.message, message)
+				if number == 0 || len(client.message) < 10 {
+					client.sendMessage("replace")
+					client.append = ""
+				} else {
+					client.sendMessage("append")
+					client.append = ""
+				}
+				if number > 20 {
+					number = 0
+				} else {
+					number++
+				}
+			}
+		}
+
+	}
+	if err := o.Err(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (client *clientModel) claudeResponse(response chan types.PartialResponse) {

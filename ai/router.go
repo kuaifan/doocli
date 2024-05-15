@@ -22,6 +22,7 @@ func Start() {
 	http.HandleFunc("/wenxin/send", WenxinSend)
 	http.HandleFunc("/qianwen/send", QianWenSend)
 	http.HandleFunc("/gemini/send", GeminiSend)
+	http.HandleFunc("/zhipu/send", ZhiPuSend)
 	//
 	fmt.Println("AI service started, listening on port: " + HttpPort)
 	_ = http.ListenAndServe(":"+HttpPort, nil)
