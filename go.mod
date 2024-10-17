@@ -9,9 +9,8 @@ require (
 	github.com/google/generative-ai-go v0.8.0
 	github.com/google/uuid v1.4.0
 	github.com/hitosea/go-wenxin v0.0.6
-	github.com/itcwc/go-zhipu v0.0.0-20240307055515-33a38a8a1403
 	github.com/nahid/gohttp v0.0.1
-	github.com/sashabaranov/go-openai v1.16.1
+	github.com/sashabaranov/go-openai v1.32.2
 	github.com/spf13/cobra v1.7.0
 	github.com/tidwall/gjson v1.14.4
 	google.golang.org/api v0.149.0

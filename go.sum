@@ -95,8 +95,6 @@ github.com/imroc/req/v3 v3.35.1 h1:xrsuKq4FHWqxU2DM8lWbTwmxiObGfR7B/zgEBMmy8Wc=
 github.com/imroc/req/v3 v3.35.1/go.mod h1:c8dXW9N3SJn/DuKVjHHmryV2WO7At9bFtnu1rloiFoo=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
-github.com/itcwc/go-zhipu v0.0.0-20240307055515-33a38a8a1403 h1:lNE9Uf1ZSIPzFWuSIVeyP5Pjw/JZsqo0yNyUUzMe7rQ=
-github.com/itcwc/go-zhipu v0.0.0-20240307055515-33a38a8a1403/go.mod h1:z7QZm7ol2nikFFGHwArJr1NTtBSE0M0g9MvHKxm1Sw0=
 github.com/jtolds/gls v4.20.0+incompatible h1:xdiiI2gbIgH/gLH7ADydsJ1uDOEzR8yvV7C0MuV77Wo=
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 h1:Z9n2FFNUXsshfwJMBgNA0RU6/i7WVaAegv3PtuIHPMs=
 github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51/go.mod h1:CzGEWj7cYgsdH8dAjBGEr58BoE7ScuLd+fwFZ44+/x8=
@@ -140,6 +138,7 @@ github.com/rogpeppe/go-internal v1.9.0 h1:73kH8U+JUqXU8lRuOHeVHaa/SZPifC7BkcraZV
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
 github.com/sashabaranov/go-openai v1.16.1 h1:R7c8jhXeQEtHkD6MoXQfkgzz/7JI6jjFKl+DXawaejQ=
 github.com/sashabaranov/go-openai v1.16.1/go.mod h1:lj5b/K+zjTSFxVLijLSTDZuP7adOgerWeFyZLUhAKRg=
+github.com/sashabaranov/go-openai v1.32.2/go.mod h1:lj5b/K+zjTSFxVLijLSTDZuP7adOgerWeFyZLUhAKRg=
 github.com/smarty/assertions v1.15.0 h1:cR//PqUBUiQRakZWqBiFFQ9wb8emQGDb0HeGdqGByCY=
 github.com/smartystreets/goconvey v1.8.1 h1:qGjIddxOk4grTu9JPOU31tVfq3cNdBlNa5sSznIX1xY=
 github.com/smartystreets/goconvey v1.8.1/go.mod h1:+/u4qLyY6x1jReYOp7GOM2FSt8aP9CzCZL03bI28W60=
